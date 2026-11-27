@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>ZONA LM PRODUCER — Productor de Música</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#0a0014;color:#fff;font-family:Arial,Helvetica,sans-serif;padding:10px 10px 40px}
+h1{margin:6px 0 0;text-align:center;font-size:26px;background:linear-gradient(90deg,#a855f7,#ec4899,#facc15);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{text-align:center;color:#c4b5fd;margin:2px 0 10px;font-size:14px}
+.logo{text-align:center;font-weight:bold;color:#facc15;letter-spacing:2px;font-size:13px}
+.card{background:#1a0b2e;border:2px solid #7c3aed;border-radius:16px;padding:12px;margin:10px 0}
+.card h2{margin:0 0 10px;font-size:18px;color:#e9d5ff}
+button{font-size:17px;font-weight:bold;border:none;border-radius:14px;padding:14px 10px;color:#fff;background:#7c3aed;cursor:pointer;min-height:56px}
+button:active{transform:scale(.96)}
+button.on{background:#db2777}
+button.green{background:#16a34a}
+button.red{background:#dc2626}
+button.gold{background:#ca8a04;color:#000}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row button{flex:1;min-width:80px}
+.big{font-size:20px;padding:18px 10px}
+input[type=range]{width:100%;height:34px;accent-color:#a855f7}
+select,input[type=text],input[type=file]{width:100%;padding:12px;border-radius:12px;border:2px solid #7c3aed;background:#0f0520;color:#fff;font-size:16px}
+label{display:block;margin:8px 0 4px;color:#c4b5fd;font-weight:bold}
+.pad-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.pad-grid button{padding:22px 6px;font-size:18px;background:linear-gradient(145deg,#6d28d9,#4c1d95)}
+.pad-grid button:active,.pad-grid button.playing{background:#db2777}
+.seq{display:grid;grid-template-columns:repeat(16,1fr);gap:4px;margin:6px 0}
+.seq button{padding:0;min-height:36px;border-radius:6px;background:#2e1065;font-size:11px}
+.seq button.on{background:#facc15;color:#000}
+.seq button.beat{background:#4c1d95}
+.track{display:flex;align-items:center;gap:6px;margin:4px 0}
+.track span{width:74px;font-size:13px;font-weight:bold;flex-shrink:0}
+.track .seq{flex:1}
+.piano{display:flex;height:120px;position:relative;margin-top:8px}
+.piano .w{flex:1;background:#fff;color:#000;border:1px solid #999;border-radius:0 0 8px 8px;font-size:12px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;min-height:120px}
+.piano .b{position:absolute;top:0;width:9%;height:70px;background:#000;color:#fff;border-radius:0 0 6px 6px;z-index:2;font-size:10px;min-height:70px;padding:0}
+.note{font-size:13px;color:#a78bfa}
+#msg{background:#0f0520;border:1px solid #7c3aed;border-radius:10px;padding:10px;margin-top:8px;min-height:44px;font-size:15px}
+.small{font-size:13px;color:#a78bfa}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{flex:1;min-width:70px;background:#312e81}
+</style>
+</head>
+<body>
+<div class="logo">🎬 ZONA LM SHOT</div>
+<h1>🎧 ZONA LM PRODUCER</h1>
+<div class="sub">Productor de música en tu teléfono — dembow, merengue, bachata y reguetón</div>
+
+<div class="card">
+<h2>▶️ Estudio</h2>
+<div class="row">
+<button id="btnStart" class="big green">🔊 ENCENDER ESTUDIO</button>
+<button id="btnPlay" class="big">▶️ PLAY</button>
+<button id="btnStop" class="big red">⏹ PARAR</button>
+</div>
+<div id="msg">Toca “ENCENDER ESTUDIO” para activar el sonido. Sin eso el teléfono no deja sonar.</div>
+<label>Tempo (BPM): <span id="bpmVal">95</span></label>
+<input type="range" id="bpm" min="60" max="180" value="95">
+<label>Género / Loop base</label>
+<div class="chips">
+<button data-genre="dembow" class="genre on">Dembow</button>
+<button data-genre="merengue" class="genre">Merengue</button>
+<button data-genre="bachata" class="genre">Bachata</button>
+<button data-genre="regueton" class="genre">Reguetón</button>
+</div>
+<label>Volumen maestro</label>
+<input type="range" id="vol" min="0" max="100" value="80">
+</div>
+
+<div class="card">
+<h2>🥁 Pads de batería — toca y suena</h2>
+<div class="pad-grid">
+<button data-drum="kick">🥁 KICK</button>
+<button data-drum="snare">🥁 SNARE</button>
+<button data-drum="hihat">🎩 HI-HAT</button>
+<button data-drum="guira">🪘 GÜIRA</button>
+<button data-drum="tambora">🪘 TAMBORA</button>
+<button data-drum="conga">🪘 CONGA</button>
+<button data-drum="clap">👏 PALMA</button>
+<button data-drum="crash">🔔 PLATILLO</button>
+<button data-drum="bass">🎸 BAJO</button>
+</div>
+</div>
+
+<div class="card">
+<h2>🎛️ Secuenciador — 16 pasos</h2>
+<p class="small">Toca los cuadros para armar tu beat. El cuadro amarillo suena. El loop base del género llena el patrón al cambiar de género.</p>
+<div id="seq"></div>
+<div class="row">
+<button id="btnClear">🧹 Limpiar</button>
+<button id="btnFill">✨ Llenar género</button>
+</div>
+</div>
+
+<div class="card">
+<h2>🎹 Piano y acordes</h2>
+<div class="chips">
+<button data-chord="Am">Am</button><button data-chord="C">C</button><button data-chord="G">G</button>
+<button data-chord="F">F</button><button data-chord="Dm">Dm</button><button data-chord="Em">Em</button>
+</div>
+<div class="piano" id="piano"></div>
+<p class="note">Piano: C D E F G A B — toca las teclas blancas y negras. El bajo suena grave.</p>
+<label>Instrumento</label>
+<select id="inst"><option value="sine">Suave (sine)</option><option value="square">Fuerte (square)</option><option value="sawtooth">Sierra (saw)</option><option value="triangle">Triángulo</option></select>
+</div>
+
+<div class="card">
+<h2>✨ Efectos y ecualizador</h2>
+<label>Eco (delay): <span id="echoVal">0%</span></label>
+<input type="range" id="echo" min="0" max="80" value="0">
+<label>Reverberación: <span id="revVal">0%</span></label>
+<input type="range" id="rev" min="0" max="80" value="0">
+<label>Graves (EQ bajo)</label><input type="range" id="eqLow" min="-12" max="12" value="0">
+<label>Medios (EQ medio)</label><input type="range" id="eqMid" min="-12" max="12" value="0">
+<label>Agudos (EQ alto)</label><input type="range" id="eqHigh" min="-12" max="12" value="0">
+</div>
+
+<div class="card">
+<h2>🎤 Tu voz / audio</h2>
+<p class="small">Sube tu voz o un audio (MP3/WAV). Suena junto al beat. Ajusta su volumen.</p>
+<input type="file" id="upload" accept="audio/*">
+<div class="row" style="margin-top:8px">
+<button id="btnVoice" class="green">▶️ Mi audio</button>
+<button id="btnVoiceStop" class="red">⏹ Parar audio</button>
+</div>
+<label>Volumen de tu audio: <span id="voiceVolVal">80%</span></label>
+<input type="range" id="voiceVol" min="0" max="100" value="80">
+</div>
+
+<div class="card">
+<h2>💾 Guardar / Exportar</h2>
+<input type="text" id="projName" placeholder="Nombre de tu beat, ej: Dembow del barrio">
+<div class="row" style="margin-top:8px">
+<button id="btnSave" class="green">💾 Guardar beat</button>
+<button id="btnLoad">📂 Cargar</button>
+<button id="btnList">📋 Mis beats</button>
+</div>
+<div class="row" style="margin-top:8px">
+<button id="btnRec" class="red">🔴 Grabar</button>
+<button id="btnRecStop">⏹ Parar y descargar</button>
+<button id="btnWav" class="gold">⬇️ Exportar WAV</button>
+</div>
+<p class="small" id="projList"></p>
+<p class="small">Grabar captura lo que suena en vivo (WebM). Exportar WAV genera el beat actual en 4 compases, sin necesidad de grabar en vivo.</p>
+</div>
+
+<script>
+"use strict";
+let AC=null, master=null, eqLow=null, eqMid=null, eqHigh=null, delay=null, delayGain=null, reverb=null, revGain=null, recDest=null, recorder=null, recChunks=[];
+let noiseBuf=null, voiceBuf=null, voiceSrc=null, voiceGain=null;
+let playing=false, step=0, timer=null, bpm=95, genre="dembow";
+const DRUMS=["kick","snare","hihat","guira","tambora","conga"];
+let pattern={};
+DRUMS.forEach(d=>pattern[d]=new Array(16).fill(false));
+const PATTERNS={
+ dembow:{kick:[1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0],snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],hihat:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],guira:[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],tambora:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],conga:[0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0]},
+ merengue:{kick:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],hihat:[1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1],guira:[1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1],tambora:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],conga:[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0]},
+ bachata:{kick:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],snare:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],hihat:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],guira:[0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],tambora:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],conga:[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0]},
+ regueton:{kick:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0],snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],hihat:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1],guira:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],tambora:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],conga:[0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,0]}
+};
+const CHORDS={Am:[220,261.63,329.63],C:[261.63,329.63,392],G:[196,246.94,293.66],F:[174.61,220,261.63],Dm:[146.83,174.61,220],Em:[164.81,196,246.94]};
+const NOTES=[["C4",261.63],["D4",293.66],["E4",329.63],["F4",349.23],["G4",392],["A4",440],["B4",493.88],["C5",523.25]];
+const BLACK=[["C#4",277.18,7],["D#4",311.13,21],["F#4",369.99,50],["G#4",415.3,64],["A#4",466.16,79]];
+function msg(t){document.getElementById("msg").textContent=t;}
+function ensureAudio(){
+ if(AC) return true;
+ try{
+  AC=new (window.AudioContext||window.webkitAudioContext)();
+  master=AC.createGain(); master.gain.value=0.8;
+  eqLow=AC.createBiquadFilter(); eqLow.type="lowshelf"; eqLow.frequency.value=200;
+  eqMid=AC.createBiquadFilter(); eqMid.type="peaking"; eqMid.frequency.value=1000;
+  eqHigh=AC.createBiquadFilter(); eqHigh.type="highshelf"; eqHigh.frequency.value=4000;
+  delay=AC.createDelay(1); delay.delayTime.value=0.28;
+  delayGain=AC.createGain(); delayGain.gain.value=0;
+  reverb=AC.createConvolver(); reverb.buffer=makeImpulse(1.2,2.5);
+  revGain=AC.createGain(); revGain.gain.value=0;
+  recDest=AC.createMediaStreamDestination();
+  master.connect(eqLow); eqLow.connect(eqMid); eqMid.connect(eqHigh);
+  eqHigh.connect(AC.destination); eqHigh.connect(recDest);
+  eqHigh.connect(delay); delay.connect(delayGain); delayGain.connect(eqHigh);
+  eqHigh.connect(reverb); reverb.connect(revGain); revGain.connect(eqHigh);
+  voiceGain=AC.createGain(); voiceGain.gain.value=0.8; voiceGain.connect(master);
+  noiseBuf=AC.createBuffer(1,AC.sampleRate*1,AC.sampleRate);
+  const d=noiseBuf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+  return true;
+ }catch(e){ msg("No se pudo activar el audio: "+e.message); return false; }
+}
+function makeImpulse(dur,decay){
+ const len=Math.floor(AC.sampleRate*dur), buf=AC.createBuffer(2,len,AC.sampleRate);
+ for(let c=0;c<2;c++){const ch=buf.getChannelData(c); for(let i=0;i<len;i++) ch[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay);}
+ return buf;
+}
+function bus(){ return master; }
+function playNoise(when,dur,filterType,freq,q,vol){
+ const s=AC.createBufferSource(); s.buffer=noiseBuf;
+ const f=AC.createBiquadFilter(); f.type=filterType; f.frequency.value=freq; f.Q.value=q||1;
+ const g=AC.createGain(); g.gain.setValueAtTime(vol,when); g.gain.exponentialRampToValueAtTime(0.001,when+dur);
+ s.connect(f); f.connect(g); g.connect(master); s.start(when); s.stop(when+dur+0.02);
+}
+function playTone(when,freq,dur,type,vol,slideTo){
+ const o=AC.createOscillator(), g=AC.createGain();
+ o.type=type||"sine"; o.frequency.setValueAtTime(freq,when);
+ if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo,when+dur);
+ g.gain.setValueAtTime(vol,when); g.gain.exponentialRampToValueAtTime(0.001,when+dur);
+ o.connect(g); g.connect(master); o.start(when); o.stop(when+dur+0.02);
+}
+function drum(name,when){
+ when=when||AC.currentTime;
+ if(name==="kick") playTone(when,150,0.28,"sine",0.9,45);
+ else if(name==="snare"){ playNoise(when,0.18,"bandpass",1800,1,0.6); playTone(when,190,0.1,"triangle",0.4); }
+ else if(name==="hihat") playNoise(when,0.05,"highpass",7000,1,0.35);
+ else if(name==="guira") playNoise(when,0.07,"bandpass",4500,4,0.5);
+ else if(name==="tambora"){ playTone(when,220,0.16,"sine",0.7,90); playNoise(when,0.08,"bandpass",900,1,0.4); }
+ else if(name==="conga") playTone(when,320,0.22,"sine",0.7,150);
+ else if(name==="clap") playNoise(when,0.12,"bandpass",1200,1.5,0.6);
+ else if(name==="crash") playNoise(when,0.6,"highpass",5000,1,0.4);
+ else if(name==="bass") playTone(when,55,0.4,"sine",0.8,40);
+}
+function playNote(freq,dur){
+ if(!ensureAudio()) return;
+ const t=AC.currentTime, type=document.getElementById("inst").value;
+ playTone(t,freq,dur||0.6,type,0.5);
+}
+function playChord(name){
+ if(!ensureAudio()) return;
+ const t=AC.currentTime, type=document.getElementById("inst").value;
+ (CHORDS[name]||[]).forEach(f=>playTone(t,f,1.2,type,0.35));
+ msg("Acorde "+name+" sonando 🎶");
+}
+// Secuenciador
+function buildSeq(){
+ const box=document.getElementById("seq"); box.innerHTML="";
+ DRUMS.forEach(d=>{
+  const row=document.createElement("div"); row.className="track";
+  const lab=document.createElement("span"); lab.textContent=d.toUpperCase(); row.appendChild(lab);
+  const grid=document.createElement("div"); grid.className="seq";
+  for(let i=0;i<16;i++){
+   const b=document.createElement("button"); b.textContent=i+1; if(i%4===0) b.classList.add("beat");
+   if(pattern[d][i]) b.classList.add("on");
+   b.onclick=()=>{ pattern[d][i]=!pattern[d][i]; b.classList.toggle("on",pattern[d][i]); };
+   grid.appendChild(b);
+  }
+  row.appendChild(grid); box.appendChild(row);
+ });
+}
+function fillGenre(){
+ const p=PATTERNS[genre]; if(!p) return;
+ DRUMS.forEach(d=>{ for(let i=0;i<16;i++) pattern[d][i]=!!(p[d]&&p[d][i]); });
+ buildSeq();
+}
+function tick(){
+ if(!playing) return;
+ DRUMS.forEach(d=>{ if(pattern[d][step]) drum(d); });
+ // bajo en dembow/reguetón en pasos 0 y 8
+ if((genre==="dembow"||genre==="regueton")&&(step===0||step===8)) drum("bass");
+ document.querySelectorAll("#seq .track").forEach((row,ri)=>{
+  row.querySelectorAll("button").forEach((b,i)=>{ b.style.outline=(i===step)?"2px solid #fff":"none"; });
+ });
+ step=(step+1)%16;
+ const ms=(60/bpm/4)*1000;
+ timer=setTimeout(tick,ms);
+}
+function startPlay(){
+ if(!ensureAudio()) return;
+ if(AC.state==="suspended") AC.resume();
+ if(playing) return;
+ playing=true; step=0; tick(); msg("▶️ Sonando: "+genre+" a "+bpm+" BPM 🎶");
+}
+function stopPlay(){ playing=false; if(timer) clearTimeout(timer); msg("⏹ Parado."); }
+// Piano
+(function(){
+ const p=document.getElementById("piano");
+ NOTES.forEach(n=>{
+  const b=document.createElement("button"); b.className="w"; b.textContent=n[0];
+  b.onclick=()=>playNote(n[1],0.6); p.appendChild(b);
+ });
+ BLACK.forEach(n=>{
+  const b=document.createElement("button"); b.className="b"; b.textContent=n[0]; b.style.left=n[2]+"%";
+  b.onclick=(e)=>{e.stopPropagation(); playNote(n[1],0.6);}; p.appendChild(b);
+ });
+})();
+// Eventos
+document.getElementById("btnStart").onclick=()=>{ if(ensureAudio()){ AC.resume(); msg("✅ Estudio encendido. Toca un pad, el piano o PLAY."); } };
+document.getElementById("btnPlay").onclick=startPlay;
+document.getElementById("btnStop").onclick=stopPlay;
+document.getElementById("bpm").oninput=e=>{ bpm=+e.target.value; document.getElementById("bpmVal").textContent=bpm; };
+document.getElementById("vol").oninput=e=>{ if(master) master.gain.value=e.target.value/100; };
+document.getElementById("echo").oninput=e=>{ document.getElementById("echoVal").textContent=e.target.value+"%"; if(delayGain) delayGain.gain.value=e.target.value/100*0.5; };
+document.getElementById("rev").oninput=e=>{ document.getElementById("revVal").textContent=e.target.value+"%"; if(revGain) revGain.gain.value=e.target.value/100*0.6; };
+document.getElementById("eqLow").oninput=e=>{ if(eqLow) eqLow.gain.value=+e.target.value; };
+document.getElementById("eqMid").oninput=e=>{ if(eqMid) eqMid.gain.value=+e.target.value; };
+document.getElementById("eqHigh").oninput=e=>{ if(eqHigh) eqHigh.gain.value=+e.target.value; };
+document.querySelectorAll(".genre").forEach(b=>b.onclick=()=>{
+ document.querySelectorAll(".genre").forEach(x=>x.classList.remove("on")); b.classList.add("on");
+ genre=b.dataset.genre; fillGenre(); msg("Género: "+genre+" — patrón cargado.");
+});
+document.querySelectorAll("[data-drum]").forEach(b=>b.onclick=()=>{
+ if(!ensureAudio()) return; AC.resume(); drum(b.dataset.drum);
+ b.classList.add("playing"); setTimeout(()=>b.classList.remove("playing"),150);
+});
+document.querySelectorAll("[data-chord]").forEach(b=>b.onclick=()=>playChord(b.dataset.chord));
+document.getElementById("btnClear").onclick=()=>{ DRUMS.forEach(d=>pattern[d].fill(false)); buildSeq(); msg("Secuenciador limpio."); };
+document.getElementById("btnFill").onclick=()=>{ fillGenre(); msg("Patrón de "+genre+" cargado."); };
+document.getElementById("upload").onchange=async e=>{
+ const f=e.target.files[0]; if(!f) return;
+ if(!ensureAudio()) return;
+ try{ const ab=await f.arrayBuffer(); voiceBuf=await AC.decodeAudioData(ab); msg("✅ Audio cargado: "+f.name+" ("+Math.round(voiceBuf.duration)+"s). Toca “Mi audio”."); }
+ catch(err){ msg("No se pudo leer ese audio: "+err.message); }
+};
+document.getElementById("btnVoice").onclick=()=>{
+ if(!voiceBuf){ msg("Primero sube un audio arriba."); return; }
+ if(voiceSrc) voiceSrc.stop();
+ voiceSrc=AC.createBufferSource(); voiceSrc.buffer=voiceBuf; voiceSrc.loop=true;
+ voiceSrc.connect(voiceGain); voiceSrc.start(); msg("🎤 Tu audio sonando en loop con el beat.");
+};
+document.getElementById("btnVoiceStop").onclick=()=>{ if(voiceSrc){ voiceSrc.stop(); voiceSrc=null; msg("Audio parado."); } };
+document.getElementById("voiceVol").oninput=e=>{ document.getElementById("voiceVolVal").textContent=e.target.value+"%"; if(voiceGain) voiceGain.gain.value=e.target.value/100; };
+// Guardar / cargar
+function allProjects(){ try{ return JSON.parse(localStorage.getItem("zonalm_producer_projects")||"{}"); }catch(e){ return {}; } }
+document.getElementById("btnSave").onclick=()=>{
+ const name=document.getElementById("projName").value.trim()||("Beat "+new Date().toLocaleDateString());
+ const all=allProjects(); all[name]={genre,bpm,pattern,ts:Date.now()};
+ localStorage.setItem("zonalm_producer_projects",JSON.stringify(all));
+ msg("💾 Guardado: "+name); document.getElementById("projList").textContent="Guardados: "+Object.keys(all).join(", ");
+};
+document.getElementById("btnLoad").onclick=()=>{
+ const name=document.getElementById("projName").value.trim();
+ const all=allProjects(); if(!name||!all[name]){ msg("Escribe el nombre exacto del beat para cargarlo."); return; }
+ const p=all[name]; genre=p.genre; bpm=p.bpm; pattern=p.pattern;
+ document.getElementById("bpm").value=bpm; document.getElementById("bpmVal").textContent=bpm; buildSeq();
+ msg("📂 Cargado: "+name+" ("+genre+", "+bpm+" BPM)");
+};
+document.getElementById("btnList").onclick=()=>{
+ const all=allProjects(); const k=Object.keys(all);
+ document.getElementById("projList").textContent=k.length?("Mis beats: "+k.join(" | ")):"Aún no tienes beats guardados.";
+ msg(k.length?k.length+" beat(s) guardado(s).":"Sin beats guardados.");
+};
+// Grabar en vivo
+document.getElementById("btnRec").onclick=()=>{
+ if(!ensureAudio()) return;
+ recChunks=[]; recorder=new MediaRecorder(recDest.stream);
+ recorder.ondataavailable=e=>recChunks.push(e.data);
+ recorder.onstop=()=>{
+  const blob=new Blob(recChunks,{type:recorder.mimeType||"audio/webm"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="zona-lm-producer-grabacion.webm"; a.click(); msg("⬇️ Grabación descargada (WebM).");
+ };
+ recorder.start(); msg("🔴 Grabando… toca PLAY y toca los pads. Luego “Parar y descargar”.");
+};
+document.getElementById("btnRecStop").onclick=()=>{ if(recorder&&recorder.state!=="inactive") recorder.stop(); else msg("No hay grabación en curso."); };
+// Exportar WAV (offline, 4 compases)
+document.getElementById("btnWav").onclick=async ()=>{
+ if(!ensureAudio()) return;
+ msg("⏳ Generando WAV (4 compases)…");
+ try{
+  const sr=44100, barSec=(60/bpm)*4, total=barSec*4;
+  const off=new OfflineAudioContext(2,Math.floor(sr*total),sr);
+  const out=off.createGain(); out.gain.value=0.8; out.connect(off.destination);
+  const nb=off.createBuffer(1,sr,sr); const nd=nb.getChannelData(0); for(let i=0;i<nd.length;i++) nd[i]=Math.random()*2-1;
+  function oTone(when,freq,dur,vol,slide){ const o=off.createOscillator(),g=off.createGain(); o.type="sine"; o.frequency.setValueAtTime(freq,when); if(slide) o.frequency.exponentialRampToValueAtTime(slide,when+dur); g.gain.setValueAtTime(vol,when); g.gain.exponentialRampToValueAtTime(0.001,when+dur); o.connect(g); g.connect(out); o.start(when); o.stop(when+dur); }
+  function oNoise(when,dur,type,freq,vol){ const s=off.createBufferSource(); s.buffer=nb; const f=off.createBiquadFilter(); f.type=type; f.frequency.value=freq; const g=off.createGain(); g.gain.setValueAtTime(vol,when); g.gain.exponentialRampToValueAtTime(0.001,when+dur); s.connect(f); f.connect(g); g.connect(out); s.start(when); s.stop(when+dur); }
+  const stepSec=60/bpm/4;
+  for(let bar=0;bar<4;bar++) for(let s=0;s<16;s++){
+   const t=bar*barSec+s*stepSec;
+   DRUMS.forEach(d=>{ if(!pattern[d][s]) return;
+    if(d==="kick") oTone(t,150,0.28,0.9,45);
+    else if(d==="snare"){ oNoise(t,0.18,"bandpass",1800,0.6); oTone(t,190,0.1,0.4); }
+    else if(d==="hihat") oNoise(t,0.05,"highpass",7000,0.35);
+    else if(d==="guira") oNoise(t,0.07,"bandpass",4500,0.5);
+    else if(d==="tambora"){ oTone(t,220,0.16,0.7,90); oNoise(t,0.08,"bandpass",900,0.4); }
+    else if(d==="conga") oTone(t,320,0.22,0.7,150);
+   });
+   if((genre==="dembow"||genre==="regueton")&&(s===0||s===8)) oTone(t,55,0.4,0.8,40);
+  }
+  const rendered=await off.startRendering();
+  const wav=encodeWAV(rendered);
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([wav],{type:"audio/wav"}));
+  a.download="zona-lm-producer-beat.wav"; a.click(); msg("⬇️ WAV exportado: 4 compases de "+genre+" a "+bpm+" BPM.");
+ }catch(e){ msg("No se pudo exportar WAV: "+e.message); }
+};
+function encodeWAV(buf){
+ const n=buf.length, ch=2, bytes=44+n*ch*2, out=new ArrayBuffer(bytes), v=new DataView(out);
+ const ws=(o,s)=>{ for(let i=0;i<s.length;i++) v.setUint8(o+i,s.charCodeAt(i)); };
+ ws(0,"RIFF"); v.setUint32(4,bytes-8,true); ws(8,"WAVE"); ws(12,"fmt "); v.setUint32(16,16,true);
+ v.setUint16(20,1,true); v.setUint16(22,ch,true); v.setUint32(24,buf.sampleRate,true);
+ v.setUint32(28,buf.sampleRate*ch*2,true); v.setUint16(32,ch*2,true); v.setUint16(34,16,true);
+ ws(36,"data"); v.setUint32(40,n*ch*2,true);
+ const L=buf.getChannelData(0), R=buf.numberOfChannels>1?buf.getChannelData(1):L;
+ let o=44; for(let i=0;i<n;i++){ const a=Math.max(-1,Math.min(1,L[i])), b=Math.max(-1,Math.min(1,R[i])); v.setInt16(o,a*32767,true); v.setInt16(o+2,b*32767,true); o+=4; }
+ return out;
+}
+fillGenre();
+</script>
+</body>
+</html>
